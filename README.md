@@ -1,30 +1,31 @@
-# DASOM NOTE
+# 누구게? 인물 퀴즈
 
-다솜모임, 헬로키티 카페, 몽골 여행의 세 가지 추억을 담은 반응형 개인 홈페이지입니다.
+설치와 빌드가 필요 없는 정적 웹 게임입니다. 기본적으로 샘플 문제 5개로 동작하며, Firebase Firestore를 연결하면 문제를 온라인에서 관리할 수 있습니다.
 
-## GitHub Pages에 올리기
+## Firebase 연결
 
-1. 이 폴더를 새 GitHub 저장소에 업로드합니다.
-2. 저장소의 **Settings → Pages**를 엽니다.
-3. **Deploy from a branch**에서 `main` 브랜치와 `/(root)`를 선택해 저장합니다.
-4. 잠시 후 표시되는 주소로 홈페이지를 열 수 있습니다.
+1. Firebase에서 프로젝트와 **웹 앱**을 만듭니다.
+2. Firestore Database를 만든 뒤, `firestore.rules` 내용을 Rules 탭에 붙여넣어 배포합니다.
+3. `app.js` 맨 위 `firebaseConfig`의 빈 값들을 Firebase가 제공한 설정값으로 채웁니다.
+4. Firestore에 `questions` 컬렉션을 만들고 문서를 추가합니다.
 
-## Vercel에 올리기
+문서 예시:
 
-Vercel에서 GitHub 저장소를 연결할 때 **Root Directory**를 `./`(저장소 최상단)으로 두세요. 이 프로젝트는 별도의 빌드 과정이 없는 정적 사이트입니다.
+```json
+{
+  "category": "영화",
+  "question": "영화 기생충을 연출한 감독은 누구일까요?",
+  "choices": ["봉준호", "박찬욱", "김지운", "류승완"],
+  "answer": 0
+}
+```
 
-- Framework Preset: `Other`
-- Build Command: 비워두기
-- Output Directory: 비워두기
+`answer`는 정답의 위치이며, 첫 번째 선택지는 `0`입니다.
 
-`index.html`, `style.css`, `script.js`, `assets` 폴더, `vercel.json` 파일이 모두 같은 최상단에 있어야 합니다.
+## GitHub와 Vercel 배포
 
-## 구성
+1. 이 `person-quiz` 폴더를 새 GitHub 저장소에 올립니다.
+2. Vercel에서 **Add New → Project**를 선택하고 GitHub 저장소를 연결합니다.
+3. Framework Preset은 **Other**, 배포 폴더는 저장소 루트로 둔 뒤 Deploy를 누릅니다.
 
-- `index.html` — 페이지 구조와 소개 문구
-- `style.css` — 반응형 레이아웃 및 직접 제작한 CSS 일러스트
-- `script.js` — 맨 위로 이동 버튼
-- `assets/` — 다솜모임 및 헬로키티 이미지
-- `vercel.json` — Vercel 배포 설정
-
-각 카드의 링크는 사용자가 제공한 원문으로 새 창에서 열립니다.
+Vercel과 Firebase의 무료 플랜으로 시작할 수 있고, 방문자는 브라우저에서만 게임을 실행합니다.
