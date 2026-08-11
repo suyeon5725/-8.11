@@ -64,7 +64,7 @@ function renderQuestion() {
   answered = false; hintUsed = false;
   el.round.textContent = current + 1; el.score.textContent = score;
   el.category.textContent = q.category || "인물"; el.question.textContent = q.question;
-  el.feedback.textContent = ""; el.next.hidden = true; el.choices.replaceChildren(); el["portrait-wrap"].classList.remove("revealed");
+  el.feedback.textContent = ""; el.next.hidden = true; el.choices.replaceChildren(); el["portrait-wrap"].classList.remove("revealed"); el["portrait-lock"].hidden = false;
   el["photo-hint"].disabled = false; el["photo-hint"].hidden = false;
   loadPortrait(q);
   q.choices.forEach((choice, index) => {
