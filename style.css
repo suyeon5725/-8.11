@@ -28,6 +28,7 @@ nav a:hover, nav a:focus-visible { border-color: var(--ink); }
 .eyebrow, .card-number { margin: 0 0 .7rem; font-family: "Gaegu", cursive; font-size: 1.1rem; font-weight: 700; letter-spacing: .11em; }
 h1, h2, h3, p { margin-top: 0; }
 h1, h2, h3 { font-family: "Gaegu", cursive; font-weight: 700; letter-spacing: -.025em; }
+.keep-word { white-space: nowrap; }
 h1 { margin-bottom: 1.25rem; font-size: clamp(3.3rem, 6vw, 5.7rem); line-height: .94; }
 h1 em { color: var(--rose); font-style: normal; }
 .hero-description { line-height: 1.9; font-size: 1.02rem; }
