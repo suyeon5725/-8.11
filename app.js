@@ -36,8 +36,16 @@ const sampleQuestions = [
   { category: "영화", question: "애니메이션 『센과 치히로의 행방불명』을 만든 감독은 누구일까요?", choices: ["신카이 마코토", "미야자키 하야오", "호소다 마모루", "곤 사토시"], answer: 1 }
 ];
 
-const el = Object.fromEntries(["round", "total", "score", "category", "question", "choices", "feedback", "next", "result", "final-score", "result-message", "restart", "source-note"].map(id => [id, document.getElementById(id)]));
-let questions = [], current = 0, score = 0, answered = false;
+const personPages = {
+  "알베르트 아인슈타인": "Albert Einstein", "레오나르도 다 빈치": "Leonardo da Vinci", "생텍쥐페리": "Antoine de Saint-Exupéry", "베토벤": "Ludwig van Beethoven", "세종대왕": "Sejong the Great",
+  "아이작 뉴턴": "Isaac Newton", "빈센트 반 고흐": "Vincent van Gogh", "이순신": "Yi Sun-sin", "J. K. 롤링": "J. K. Rowling", "쇼팽": "Frédéric Chopin",
+  "봉준호": "Bong Joon-ho", "박찬호": "Park Chan-ho", "제임스 왓슨": "James Watson", "미켈란젤로": "Michelangelo", "조지 워싱턴": "George Washington",
+  "셰익스피어": "William Shakespeare", "비발디": "Antonio Vivaldi", "펠레": "Pelé", "마리 퀴리": "Marie Curie", "칭기즈 칸": "Genghis Khan",
+  "조지 오웰": "George Orwell", "알렉산더 그레이엄 벨": "Alexander Graham Bell", "르네 데카르트": "René Descartes", "김유신": "Kim Yushin", "미야자키 하야오": "Hayao Miyazaki"
+};
+
+const el = Object.fromEntries(["round", "total", "score", "category", "question", "choices", "feedback", "next", "result", "final-score", "result-message", "restart", "source-note", "portrait-wrap", "portrait", "portrait-fallback", "photo-hint"].map(id => [id, document.getElementById(id)]));
+let questions = [], current = 0, score = 0, answered = false, hintUsed = false;
 
 async function loadQuestions() {
   if (!firebaseConfig.projectId) return sampleQuestions;
@@ -53,20 +61,40 @@ async function loadQuestions() {
 
 function renderQuestion() {
   const q = questions[current];
-  answered = false;
+  answered = false; hintUsed = false;
   el.round.textContent = current + 1; el.score.textContent = score;
   el.category.textContent = q.category || "인물"; el.question.textContent = q.question;
-  el.feedback.textContent = ""; el.next.hidden = true; el.choices.replaceChildren();
+  el.feedback.textContent = ""; el.next.hidden = true; el.choices.replaceChildren(); el["portrait-wrap"].classList.remove("revealed");
+  el["photo-hint"].disabled = false; el["photo-hint"].hidden = false;
+  loadPortrait(q);
   q.choices.forEach((choice, index) => {
     const button = document.createElement("button"); button.className = "choice"; button.textContent = choice;
     button.addEventListener("click", () => answer(index)); el.choices.append(button);
   });
 }
+async function loadPortrait(q) {
+  const page = q.person || personPages[q.choices[q.answer]];
+  el.portrait.hidden = true; el["portrait-fallback"].hidden = false; el["portrait-fallback"].textContent = "사진 힌트를 준비 중이에요";
+  if (!page) return;
+  try {
+    const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(page)}`);
+    const data = await response.json(); const url = data.thumbnail?.source || data.originalimage?.source;
+    if (!url) throw new Error("이미지 없음");
+    if (q !== questions[current]) return;
+    el.portrait.onload = () => { if (q === questions[current]) { el.portrait.hidden = false; el["portrait-fallback"].hidden = true; } };
+    el.portrait.src = url;
+  } catch { el["portrait-fallback"].textContent = "이 문제의 사진 힌트는 없어요"; }
+}
+function showPhotoHint() {
+  if (answered || el.portrait.hidden) return;
+  hintUsed = true; el["portrait-wrap"].classList.add("revealed"); el["photo-hint"].disabled = true; el["photo-hint"].textContent = "사진 힌트를 사용했어요";
+}
 function answer(index) {
   if (answered) return; answered = true;
   const q = questions[current], buttons = [...el.choices.children], correct = index === q.answer;
   buttons.forEach((button, i) => { button.disabled = true; if (i === q.answer) button.classList.add("correct"); else if (i === index) button.classList.add("wrong"); });
-  if (correct) { score += 10; el.score.textContent = score; el.feedback.textContent = "정답이에요! +10점"; }
+  el["photo-hint"].hidden = true;
+  if (correct) { const earned = hintUsed ? 8 : 10; score += earned; el.score.textContent = score; el.feedback.textContent = `정답이에요! +${earned}점`; }
   else el.feedback.textContent = `아쉬워요. 정답은 “${q.choices[q.answer]}”입니다.`;
   el.next.hidden = false; el.next.textContent = current + 1 === questions.length ? "결과 보기" : "다음 문제 →";
 }
@@ -75,6 +103,7 @@ function showResult() {
   el.resultMessage.textContent = score === questions.length * 10 ? "완벽해요! 인물 퀴즈 박사네요." : "다시 도전해서 최고 점수를 노려보세요!";
 }
 el.next.addEventListener("click", () => { current += 1; current < questions.length ? renderQuestion() : showResult(); });
+el["photo-hint"].addEventListener("click", showPhotoHint);
 el.restart.addEventListener("click", () => { current = 0; score = 0; el.result.hidden = true; document.querySelector(".quiz-card").hidden = false; questions.sort(() => Math.random() - .5); renderQuestion(); });
 
 (async () => { questions = await loadQuestions(); el.total.textContent = questions.length; renderQuestion(); })();

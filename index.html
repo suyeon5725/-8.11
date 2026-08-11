@@ -8,10 +8,15 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <span class="orb orb-one" aria-hidden="true"></span>
+    <span class="orb orb-two" aria-hidden="true"></span>
+    <span class="sparkle sparkle-one" aria-hidden="true">✦</span>
+    <span class="sparkle sparkle-two" aria-hidden="true">✦</span>
     <main class="game-shell">
       <header>
         <p class="eyebrow">PERSON QUIZ</p>
         <h1>누구게? <span>인물 퀴즈</span></h1>
+        <p class="tagline">사진 힌트와 함께, 더 재미있게 맞혀봐요!</p>
         <div class="score-board" aria-label="게임 점수">
           <span>문제 <b id="round">1</b>/<b id="total">0</b></span>
           <span>점수 <b id="score">0</b></span>
@@ -21,6 +26,12 @@
       <section class="quiz-card" aria-live="polite">
         <p class="category" id="category">인물</p>
         <h2 id="question">문제를 준비하고 있어요…</h2>
+        <div class="portrait-wrap" id="portrait-wrap">
+          <span class="portrait-label">PHOTO CLUE</span>
+          <img id="portrait" alt="인물 사진 힌트" hidden />
+          <span id="portrait-fallback">사진 힌트를 준비 중이에요</span>
+        </div>
+        <button class="hint-button" id="photo-hint" type="button">📷 사진 힌트 보기 <small>(정답 +8점)</small></button>
         <div class="choices" id="choices"></div>
         <p class="feedback" id="feedback" role="status"></p>
         <button class="next-button" id="next" hidden>다음 문제 →</button>
@@ -34,6 +45,6 @@
       </section>
       <p class="source-note" id="source-note">샘플 문제로 플레이 중</p>
     </main>
-    <script type="module" src="app.js"></script>
+    <script defer src="app.js"></script>
   </body>
 </html>
